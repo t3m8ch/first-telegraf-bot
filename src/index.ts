@@ -8,17 +8,12 @@ import { ExtendedContext } from "./main/extended-context.main";
 
 async function start() {
   const config = loadConfigFromEnv();
-  const bot = new Telegraf(config.botToken, {
-    // @ts-ignore
-    contextType: ExtendedContext,
-  });
+  const bot = new Telegraf<ExtendedContext>(config.botToken);
 
   const dbConnection = await initDB(config);
 
-  // @ts-ignore
   bot.context.todoService = new TodoService(dbConnection);
 
-  // @ts-ignore
   setupHandlers(bot);
 
   bot.launch().then(() => console.log("Bot is started!"));
