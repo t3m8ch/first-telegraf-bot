@@ -13,8 +13,7 @@ export class TodoIsNotExists extends Error {
 }
 
 export class TodoService {
-  constructor(private readonly dbConnection: Connection) {
-  }
+  constructor(private readonly dbConnection: Connection) {}
 
   async add(todo: CreatingTodoDTO): Promise<TodoEntity> {
     const repo = this.dbConnection.getRepository(TodoEntity);
