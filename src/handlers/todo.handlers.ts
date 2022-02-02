@@ -63,5 +63,11 @@ function buildGetAllMessage(todos: TodoEntity[]): string {
     return "У вас нет задач :)";
   }
 
-  return ["Ваши задачи:", ...todos.map((todo) => `${todo.id}. ${todo.text}`)].join("\n");
+  return [
+    "Ваши задачи:",
+    ...todos.map((todo) => {
+      const completedEmoji = todo.isCompleted ? " ✅" : "";
+      return `${todo.id}. ${todo.text}${completedEmoji}`;
+    }),
+  ].join("\n");
 }
