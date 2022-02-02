@@ -1,5 +1,5 @@
 import { TodoEntity } from "../entities/todo.entity";
-import { Connection } from "typeorm";
+import { Connection, Repository } from "typeorm";
 
 export interface CreatingTodoDTO {
   text: string;
@@ -31,12 +31,27 @@ export class TodoService {
 
   async remove(todoId: number) {
     const repo = this.dbConnection.getRepository(TodoEntity);
-
-    const todo = await repo.findOne(todoId);
-    if (todo === undefined) {
-      throw new TodoIsNotExists(todoId);
-    }
-
-    await repo.remove(todo);
+    await repo.remove(await getTodoById(todoId, repo));
   }
+
+  async complete(todoId: number) {
+    const repo = this.dbConnection.getRepository(TodoEntity);
+    const todo = await getTodoById(todoId, repo);
+
+    todo.isCompleted = true;
+    await repo.save(todo);
+  }
+}
+
+async function getTodoById(
+  todoId: number,
+  repo: Repository<TodoEntity>,
+): Promise<TodoEntity> {
+  const todo = await repo.findOne(todoId);
+
+  if (todo === undefined) {
+    throw new TodoIsNotExists(todoId);
+  }
+
+  return todo;
 }

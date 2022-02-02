@@ -56,6 +56,36 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
 
     await ctx.reply(`Todo with ID: ${todoId} was successfully removed`);
   });
+
+  bot.command("complete", async (ctx) => {
+    const text = ctx.message?.text;
+    const todoIdString = text?.split(" ")[1];
+    if (todoIdString === undefined) {
+      await ctx.reply("You must enter the todo ID");
+      return;
+    }
+
+    const todoId = parseInt(todoIdString);
+    if (isNaN(todoId)) {
+      await ctx.reply("The command argument must be a number");
+      return;
+    }
+
+    // @ts-ignore
+    const todoService: TodoService = ctx.todoService;
+
+    try {
+      await todoService.complete(todoId);
+    } catch (e) {
+      if (e instanceof TodoIsNotExists) {
+        await ctx.reply(`Todo with ID: ${e.todoId} is not exists`);
+        return;
+      }
+      throw e;
+    }
+
+    await ctx.reply(`Todo with ID: ${todoId} was successfully completed`);
+  })
 }
 
 function buildGetAllMessage(todos: TodoEntity[]): string {
