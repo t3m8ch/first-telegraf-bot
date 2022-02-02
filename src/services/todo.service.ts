@@ -6,6 +6,12 @@ export interface CreatingTodoDTO {
   isCompleted: boolean;
 }
 
+export class TodoIsNotExists extends Error {
+  constructor(public readonly todoId: number) {
+    super(`Todo with ID: ${todoId} is not exists`);
+  }
+}
+
 export class TodoService {
   constructor(private readonly dbConnection: Connection) {
   }
@@ -26,6 +32,12 @@ export class TodoService {
 
   async remove(todoId: number) {
     const repo = this.dbConnection.getRepository(TodoEntity);
-    await repo.delete(todoId);
+
+    const todo = await repo.findOne(todoId);
+    if (todo === undefined) {
+      throw new TodoIsNotExists(todoId);
+    }
+
+    await repo.remove(todo);
   }
 }

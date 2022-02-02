@@ -1,5 +1,5 @@
 import { Context, Telegraf } from "telegraf";
-import { TodoService } from "../services/todo.service";
+import { TodoIsNotExists, TodoService } from "../services/todo.service";
 import { TodoEntity } from "../entities/todo.entity";
 
 export function setupTodoHandlers(bot: Telegraf<Context>) {
@@ -43,7 +43,16 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
 
     // @ts-ignore
     const todoService: TodoService = ctx.todoService;
-    await todoService.remove(todoId);
+
+    try {
+      await todoService.remove(todoId);
+    } catch (e) {
+      if (e instanceof TodoIsNotExists) {
+        await ctx.reply(`Todo with ID: ${e.todoId} is not exists`);
+        return;
+      }
+      throw e;
+    }
 
     await ctx.reply(`Todo with ID: ${todoId} was successfully removed`);
   });
