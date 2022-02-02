@@ -1,8 +1,9 @@
-import { Context, Telegraf } from "telegraf";
-import { TodoIsNotExists, TodoService } from "../services/todo.service";
+import { Telegraf } from "telegraf";
+import { TodoIsNotExists } from "../services/todo.service";
 import { TodoEntity } from "../entities/todo.entity";
+import { ExtendedContext } from "../main/extended-context.main";
 
-export function setupTodoHandlers(bot: Telegraf<Context>) {
+export function setupTodoHandlers(bot: Telegraf<ExtendedContext>) {
   bot.command("add", async (ctx) => {
     const text = ctx.message?.text;
     const todoText = text?.split(" ").splice(1).join(" ");
@@ -12,16 +13,14 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
       return;
     }
 
-    // @ts-ignore
-    const todoService: TodoService = ctx.todoService;
+    const todoService = ctx.todoService;
     await todoService.add({ text: todoText, isCompleted: false });
 
     await ctx.reply(`The todo with the text "${todoText}" was successfully added`);
   });
 
   bot.command("getAll", async (ctx) => {
-    // @ts-ignore
-    const todoService: TodoService = ctx.todoService;
+    const todoService = ctx.todoService;
 
     const todos = await todoService.getAll();
     await ctx.reply(buildGetAllMessage(todos));
@@ -41,8 +40,7 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
       return;
     }
 
-    // @ts-ignore
-    const todoService: TodoService = ctx.todoService;
+    const todoService = ctx.todoService;
 
     try {
       await todoService.remove(todoId);
@@ -71,8 +69,7 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
       return;
     }
 
-    // @ts-ignore
-    const todoService: TodoService = ctx.todoService;
+    const todoService = ctx.todoService;
 
     try {
       await todoService.complete(todoId);
@@ -85,7 +82,7 @@ export function setupTodoHandlers(bot: Telegraf<Context>) {
     }
 
     await ctx.reply(`Todo with ID: ${todoId} was successfully completed`);
-  })
+  });
 }
 
 function buildGetAllMessage(todos: TodoEntity[]): string {
